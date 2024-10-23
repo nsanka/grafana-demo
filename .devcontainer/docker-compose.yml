@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+   grafana-postgres:
+      container_name: grafana-postgres
+      build:
+         context: .
+         dockerfile: Dockerfile
+      restart: always
+      environment:
+         POSTGRES_DB: ${POSTGRES_DB:-postgres}
+         POSTGRES_USER: ${POSTGRES_USER:-postgres}
+         POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changeme}
+      ports:
+         - 5432:5432
+         - 3000:3000
+      networks:
+         - grafana-postgres
+      volumes:
+         - ./postgres_data:/var/lib/postgresql/data
+         - ./grafana_storage:/var/lib/grafana
+
+   pgadmin:
+      container_name: pgadmin
+      image: dpage/pgadmin4
+      restart: always
+      environment:
+         PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-nsanka@me.com}
+         PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-changeme}
+         PGADMIN_LISTEN_PORT: ${PGADMIN_LISTEN_PORT:-5050}
+      ports:
+         - "${PGADMIN_LISTEN_PORT:-5050}:${PGADMIN_LISTEN_PORT:-5050}"
+      networks:
+         - grafana-postgres
+
+networks:
+   grafana-postgres:
+      driver: bridge
+
+volumes:
+   postgres_data: {}
+   grafana_storage: {}
