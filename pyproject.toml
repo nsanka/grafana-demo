@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "grafana-demo"
+version = "0.1.0"
+description = "Demo project for Grafana with PostgreSQL"
+authors = ["Naga Sanka <nsanka@me.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+psycopg2 = "^2.9.10"
+sqlalchemy = "^2.0.36"
+ipykernel = "^6.29.5"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
