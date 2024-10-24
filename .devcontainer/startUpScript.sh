@@ -14,6 +14,7 @@ done
 echo "PostgreSQL has been initialized."
 
 echo "Start Grafana Server"
+echo -e "[server]\nhttp_port = $GRAFANA_PORT" > /etc/grafana/grafana.ini
 service grafana-server start
 
 tail -f /dev/null

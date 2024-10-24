@@ -38,10 +38,6 @@ RUN chmod +x /usr/local/bin/startUpScript.sh
 # Clean up
 RUN apt-get -y autoremove && apt-get -y clean
 
-# Grafana Server
-EXPOSE 3000
-RUN sudo update-rc.d grafana-server defaults
-
 # Update the PATH variable
 ENV PATH="${PATH}:/usr/lib/postgresql/17/bin"
 
