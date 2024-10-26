@@ -1,26 +1,26 @@
-FROM debian:bullseye
+# Pull any postgis docker image
+FROM postgis/postgis:15-master
 
-# Set environment variables to reduce output from debconf
-ENV DEBIAN_FRONTEND=noninteractive
+# Update
+RUN apt-get update
 
-RUN apt update && apt install -y \
+# Install the dependencies
+RUN apt install -y \
    apt-transport-https \
    software-properties-common \
    wget \
-   gnupg \
-   lsb-release \
+   pip \
+   libpq-dev \
+   postgresql-server-dev-15 \
    sudo \
+   vim \
    && rm -rf /var/lib/apt/lists/*
+RUN pip install pgxnclient cmake
 
-RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor -o /usr/share/keyrings/postgresql-archive-keyring.gpg
+# Install the H3 extension for postgres
+RUN pgxn install h3
 
-RUN echo "deb [signed-by=/usr/share/keyrings/postgresql-archive-keyring.gpg] http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
-
-RUN apt update && apt install -y \
-   postgresql-17 \
-   postgresql-client-17 \
-   && rm -rf /var/lib/apt/lists/*
-
+# Install Grafana
 RUN sudo mkdir -p /etc/apt/keyrings/
 RUN wget -q -O - https://apt.grafana.com/gpg.key | gpg --dearmor | sudo tee /etc/apt/keyrings/grafana.gpg > /dev/null
 
@@ -32,13 +32,13 @@ RUN apt-get update
 # Installs the latest OSS release:
 RUN apt-get install -y grafana
 
-COPY startUpScript.sh /usr/local/bin/startUpScript.sh
-RUN chmod +x /usr/local/bin/startUpScript.sh
+# Remove the dev dependencies
+RUN pip uninstall -y pgxnclient cmake
+RUN apt purge -y libpq-dev postgresql-server-dev-15 pip
 
 # Clean up
 RUN apt-get -y autoremove && apt-get -y clean
 
 # Update the PATH variable
 ENV PATH="${PATH}:/usr/lib/postgresql/17/bin"
-
-CMD ["/usr/local/bin/startUpScript.sh"]
+ENV PATH="${PATH}:/usr/share/grafana/bin"
